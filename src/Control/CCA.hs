@@ -25,7 +25,7 @@ instance Arrow a => Arrow (CCA a) where
 
 instance Arrow a => ArrowLoop (CCA a) where
   loop = Loop
-  
+
 data CCA :: (* -> * -> *) -> * -> * -> * where
   Id     :: CCA a b b
   (:.)   :: Category a => CCA a d e -> CCA a c d -> CCA a c e
@@ -36,23 +36,22 @@ data CCA :: (* -> * -> *) -> * -> * -> * where
   (:&&&) :: CCA a b c -> CCA a b c' -> CCA a b (c, c')
   Loop   :: CCA a (b, d) (c, d) -> CCA a b c
   LoopD  :: d -> a (b, d) (c, d) -> CCA a b c
-  Assoc  :: a (b, i) (c, i) -> a (c, j) (d, j)
 
   {-
-  
+
   loopD :: ArrowInit a => d -> ((b, d) -> (c, d)) -> a b c
   loopD i f = loop (f >>> second (init i))
-  
+
   assoc ((x, y), z) = (x, (y, z))
   associ (x, (y, z)) = ((x, y), z)
   assoc' f = assoc . f . associ
   trace f x = let (y, z) = f (x, z) in y
   juggle ((x, y), z) = ((x, z), y)
   juggle' f = juggle . f . juggle
-  
+
   f × g (x, y) = (f x, g y)
   swap (x, y) = (y, x)
-  
+
   composition:      arr f >>> arr g            -> arr (g . f)
   left tightening:  arr f >>> loopD i g        -> loopD i (g . (f × id))
   right tightening: loopD i f >>> arr g        -> loopD i ((g × id) . f)
