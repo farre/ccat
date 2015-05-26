@@ -2,6 +2,7 @@
 module Control.Shuffle
   ( Shuffling(..)
   , Shuffle()
+  , unshuffle
   , assoc'
   , juggle'
   , flip
@@ -56,6 +57,18 @@ instance Show (Shuffle a b c) where
   show Assoc = "assoc"
   show Associ = "associ"
   show Juggle = "juggle"
+
+unshuffle :: (Arrow a, Shuffling a) => Shuffle a b c -> a b c
+unshuffle s =
+  case s of
+    Arr a -> a
+    Id -> id
+    Cons f g -> unshuffle f >>> unshuffle g
+    Par f g -> unshuffle f *** unshuffle g
+    Assoc -> assoc
+    Associ -> associ
+    Juggle -> juggle
+    Trace f -> trace (unshuffle f)
 
 assoc' :: (Category a, Shuffling a) =>
           a ((b, c), d) ((e, f), g) -> a (b, (c, d)) (e, (f, g))
