@@ -12,28 +12,27 @@ import Control.Category
 import Prelude(Show(..), (++), (+))
 import Data.Typeable
 
-flip :: (a -> b -> c) -> (b -> a -> c)
-flip f = \a b -> f b a
-
 class Shuffling a where
   assoc :: a ((b, c), d) (b, (c, d))
   associ :: a (b, (c, d)) ((b, c), d)
   juggle :: a ((b, c), d) ((b, d), c)
   trace :: a (b, c) (d, c) -> a b d
 
+data Shuffle :: (* -> * -> *) -> * -> * -> * where
+  Arr :: a b c -> Shuffle a b c
+  Id :: Shuffle a b b
+  Cons :: Shuffle a b c -> Shuffle a c d -> Shuffle a b d
+  Par :: Shuffle a b c -> Shuffle a d e -> Shuffle a (b, d) (c, e)
+  Assoc :: Shuffle a ((b, c), d) (b, (c, d))
+  Associ :: Shuffle a (b, (c, d)) ((b, c), d)
+  Juggle  :: Shuffle a ((b, c), d) ((b, d), c)
+  Trace :: Shuffle a (b, c) (d, c) -> Shuffle a b d
+
 instance Shuffling (->) where
   assoc ((x, y), z) = (x, (y, z))
   associ (x, (y, z)) = ((x, y), z)
   trace f x = let (y, z) = f (x, z) in y
   juggle ((x, y), z) = ((x, z), y)
-
-assoc' :: (Category a, Shuffling a) =>
-     a ((b, c), d) ((e, f), g) -> a (b, (c, d)) (e, (f, g))
-assoc' f = assoc . f . associ
-
-juggle' :: (Category a, Shuffling a) =>
-     a ((b, d), c) ((e, f), g) -> a ((b, c), d) ((e, g), f)
-juggle' f = juggle . f . juggle
 
 instance Category a => Category (Shuffle a) where
   id = Id
@@ -58,15 +57,16 @@ instance Show (Shuffle a b c) where
   show Associ = "associ"
   show Juggle = "juggle"
 
-data Shuffle :: (* -> * -> *) -> * -> * -> * where
-  Arr :: a b c -> Shuffle a b c
-  Id :: Shuffle a b b
-  Cons :: Shuffle a b c -> Shuffle a c d -> Shuffle a b d
-  Par :: Shuffle a b c -> Shuffle a d e -> Shuffle a (b, d) (c, e)
-  Assoc :: Shuffle a ((b, c), d) (b, (c, d))
-  Associ :: Shuffle a (b, (c, d)) ((b, c), d)
-  Juggle  :: Shuffle a ((b, c), d) ((b, d), c)
-  Trace :: Shuffle a (b, c) (d, c) -> Shuffle a b d
+assoc' :: (Category a, Shuffling a) =>
+          a ((b, c), d) ((e, f), g) -> a (b, (c, d)) (e, (f, g))
+assoc' f = assoc . f . associ
+
+juggle' :: (Category a, Shuffling a) =>
+           a ((b, d), c) ((e, f), g) -> a ((b, c), d) ((e, g), f)
+juggle' f = juggle . f . juggle
+
+flip :: (a -> b -> c) -> (b -> a -> c)
+flip f = \a b -> f b a
 
 sequence :: Category a =>
             Shuffle a b c -> Shuffle a c d -> Shuffle a b d
