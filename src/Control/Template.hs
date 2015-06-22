@@ -1,4 +1,4 @@
-{-# Language KindSignatures, GADTs, TemplateHaskell #-}
+{-# Language KindSignatures, GADTs, TemplateHaskell, NoMonomorphismRestriction #-}
 module Control.Template where
 
 import Control.Arrow
@@ -30,9 +30,10 @@ lambdaLift = do
 
 foo = [| \x -> x |]
 
-runArrow (ArrTH th f) fns = (th, \t -> (f, t))
+runArrow :: (List l, List l') => Template a b -> l -> (ExpQ, l')
+runArrow (ArrTH th f) fns = (th, undefined)
 
 test :: Template a a
 test = arr id
 
-(th, fns) = let (th', fns') = runArrow test (\x -> x) in (th', fns' ())
+
