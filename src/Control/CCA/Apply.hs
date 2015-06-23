@@ -15,4 +15,3 @@ instance (Apply y z r, F y z ~ r, G z r ~ y) => Apply (x -> y) (x, z) r where
   type F (x -> y) (x, z) = F y z
   type G (x, z) r = x -> G z r
   apply f (x, z) = apply (f x) z
-

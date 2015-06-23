@@ -1,3 +1,4 @@
+{-# Language TypeFamilies, MultiParamTypeClasses, FlexibleInstances #-}
 module Control.CCA.List where
 
 class List l

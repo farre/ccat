@@ -1,4 +1,4 @@
-{-# Language KindSignatures, GADTs, TemplateHaskell, NoMonomorphismRestriction #-}
+{-# Language KindSignatures, GADTs, TemplateHaskell, NoMonomorphismRestriction, TypeFamilies #-}
 module Control.Template where
 
 import Control.Arrow
@@ -9,7 +9,9 @@ import Control.CCA.Apply
 import Language.Haskell.TH
 import Language.Haskell.TH.Syntax
 
-import Prelude(undefined, Show(..), (++))
+import Control.CCA.List
+
+import Prelude (undefined, Show(..), (++))
 
 data Template :: * -> * -> * where
   ArrTH :: ExpQ -> (a -> b) -> Template a b
@@ -35,5 +37,3 @@ runArrow (ArrTH th f) fns = (th, undefined)
 
 test :: Template a a
 test = arr id
-
-
